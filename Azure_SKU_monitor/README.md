@@ -1,103 +1,135 @@
-1. Capacity Not Available in the Region
-Error Message: Operation could not be completed as it results in capacity being exceeded in the region.
+# Azure VM SKU Capacity Monitoring
 
-Cause: The requested SKU (e.g., Standard_D16ds_v5) is not available in the target availability zone or region due to high demand or reservation.
+This repository provides a practical script and guide to monitor VM SKU availability in Azure, especially useful for planning VM SKU uplift or scale operations. The script leverages Azure SDK for Python and Managed Identity authentication.
 
-Resolution:
+---
 
-Run a VM SKU availability monitor script before resizing (like the one you're using).
+## 🚀 Purpose
 
-Try a different availability zone or even a different region.
+Azure VM SKUs (Virtual Machine Sizes) may not be available in all regions, availability zones, or due to capacity limits. Before performing SKU uplift (resizing a VM), it's critical to:
+- Check availability of the desired SKU
+- Prevent downtime or deployment failures
+- Automate alerts if SKU is not available
 
-Use az vm list-skus to check availability:
+This tool helps you proactively monitor SKU capacity and avoid runtime issues.
 
-bash
-Copy
-Edit
-az vm list-skus --location westeurope --output table
-2. Quota Limit Reached
-Error Message: Operation could not be completed because your quota of cores in region has been reached.
+---
 
-Cause: You’ve hit your regional vCPU quota.
+## 📁 Contents
+- `vm_sku_capacity_monitor.py` — Python script to monitor SKU capacity
+- `requirements.txt` — Required Python libraries
+- `README.md` — This file
 
-Resolution:
+---
 
-View quota:
+## 🧰 Prerequisites
+- Python 3.6 or later
+- Azure subscription
+- Azure CLI configured
+- Managed Identity enabled (if running from a VM)
+- Required roles: `Reader` or `Contributor` on the subscription
 
-bash
-Copy
-Edit
-az vm list-usage --location westeurope
-Request a quota increase:
+---
 
-bash
-Copy
-Edit
-az support ticket create --problem-class "Quota" --service "Compute" --title "Increase vCPU quota"
-3. Permission Errors
-Error Message: The client does not have authorization to perform action Microsoft.Compute/virtualMachines/write
+## 📦 Installation
 
-Cause: The identity (User or Managed Identity) does not have the correct RBAC role to perform the resize operation or check SKU availability.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/<your-org>/azure-vm-sku-monitor.git
+   cd azure-vm-sku-monitor
+   ```
 
-Resolution:
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Assign appropriate role (e.g., Contributor, Virtual Machine Contributor):
+---
 
-bash
-Copy
-Edit
-az role assignment create --assignee <principalId> --role "Contributor" --scope /subscriptions/<subId>
-4. VM is in an Unsupported State
-Error Message: Cannot resize a VM when it is in a deallocated state.
+## 🏃 Usage
 
-Cause: You are trying to resize when the VM is running or already deallocated incorrectly.
+### Run Script
+```bash
+python3 vm_sku_capacity_monitor.py --region <region> --sku <sku-name> --subscription-id <subscription-id>
+```
 
-Resolution:
+Example:
+```bash
+python3 vm_sku_capacity_monitor.py --region westeurope --sku Standard_D16ds_v5 --subscription-id 6530f7de-a552-4135-9564-bbd59b7ccf8d
+```
 
-Properly deallocate before resizing:
+### Arguments
+- `--region` (required): Azure region (e.g., `westeurope`, `eastus2`)
+- `--sku` (required): VM size to monitor (e.g., `Standard_D16ds_v5`)
+- `--subscription-id` (optional): Azure subscription ID (auto-detected with Managed Identity if not provided)
 
-bash
-Copy
-Edit
-az vm deallocate --name <vm-name> --resource-group <rg>
-5. Availability Set or Zone Incompatibility
-Error Message: The VM SKU is not supported in the availability set or zone.
+---
 
-Cause: Some SKUs are zone-specific or not supported in availability sets.
+## ⚠️ Common Issues During SKU Uplift
 
-Resolution:
+### 1. Capacity Not Available in Region
+- **Error**: `Capacity being exceeded in region`
+- **Fix**:
+  - Run this monitor script before resizing
+  - Switch zone/region if possible
 
-Check if the new SKU supports availability zones or sets.
+### 2. Quota Limit Reached
+- **Error**: `Quota of cores in region has been reached`
+- **Fix**:
+  - Check with `az vm list-usage --location <region>`
+  - Request quota increase via Azure Support
 
-Consider redeploying the VM outside of the availability set.
+### 3. Permissions
+- **Error**: `AuthorizationFailed: Microsoft.Compute/skus/read`
+- **Fix**:
+  - Assign required RBAC role (e.g., Contributor)
 
-6. Ephemeral OS Disk or Ultra Disk Restrictions
-Cause: Some larger SKUs or older VMs use disks incompatible with new SKUs.
+### 4. VM State Issues
+- **Error**: `Cannot resize a VM when it is in a deallocated state`
+- **Fix**:
+  - Deallocate VM properly before resizing
 
-Resolution:
+### 5. Availability Set/Zone Compatibility
+- **Error**: `SKU not supported in availability set`
+- **Fix**:
+  - Check if SKU supports zones
+  - Consider redeploying
 
-Validate disk compatibility using the Azure VM documentation.
+### 6. Disk Incompatibility
+- **Error**: Related to Ultra/ephemeral disks
+- **Fix**:
+  - Check disk compatibility for target SKU
 
-Change disk type if needed.
+---
 
-✅ Best Practices for SKU Uplift
-Step	Action
-🔍 1	Run a SKU availability monitor for your target region and zone
-📊 2	Check your quota with az vm list-usage
-🛡️ 3	Ensure proper RBAC roles are assigned
-🧘 4	Deallocate the VM before resizing
-📚 5	Cross-check compatibility with availability sets/zones
-🧪 6	Test the resize in a non-production environment
+## ✅ Best Practices
+| Step | Action |
+|------|--------|
+| 🔍 1 | Run SKU monitoring before resize |
+| 📊 2 | Check quota in target region |
+| 🛡️ 3 | Ensure correct RBAC roles |
+| 🧘 4 | Deallocate VM before resizing |
+| 📚 5 | Check availability sets/zones compatibility |
+| 🧪 6 | Pilot test before production rollout |
 
-🛠️ Tools to Help
-Azure CLI:
+---
 
-bash
-Copy
-Edit
-az vm list-skus --location westeurope --size Standard_D16ds_v5
-Azure Portal: Check SKU availability using the VM size selector.
+## 📌 Resources
+- [Azure VM Sizes](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes)
+- [Azure CLI - VM SKUs](https://learn.microsoft.com/en-us/cli/azure/vm/)
+- [Azure Quota Increase](https://learn.microsoft.com/en-us/azure/quotas/)
+- [Original Blog Post](https://techcommunity.microsoft.com/blog/startupsatmicrosoftblog/a-practical-guide-to-azure-vm-sku-capacity-monitoring/4415773)
 
-Azure Resource Graph: Query SKU availability across all regions.
+---
 
-Monitoring Script: Automate SKU availability checks daily or weekly.
+## 🧾 License
+MIT License
+
+---
+
+## 🙋 Support
+Please raise issues or submit PRs for improvements.
+
+---
+
+> Created by the Azure Cloud Engineering Team
