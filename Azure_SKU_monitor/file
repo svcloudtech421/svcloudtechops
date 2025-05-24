@@ -1,0 +1,92 @@
+Here's a suggested **YouTube video content outline** and **script** for a video titled:
+
+---
+
+### 🎥 **Title: "How to Monitor Azure VM SKU Capacity and Handle SKU Uplift Issues"**
+
+---
+
+### ✅ **Video Sections Outline**
+
+1. **Intro (0:00–0:30)**
+
+   * Welcome viewers and introduce the topic.
+   * Mention common problems with VM SKU availability during scale or provisioning.
+
+2. **What Are VM SKUs in Azure? (0:30–1:30)**
+
+   * Quick explanation of VM SKUs (e.g., Standard\_D16ds\_v5).
+   * Importance of SKU availability by region and zone.
+
+3. **Why SKU Uplift Fails (1:30–3:00)**
+
+   * SKU is unavailable in the target region/zone.
+   * Capacity constraints due to high demand.
+   * Permissions (e.g., `Microsoft.Compute/skus/read` role missing).
+   * Subscription limits or region quotas.
+
+4. **Monitoring SKU Capacity Using Python (3:00–6:00)**
+
+   * Introduce the GitHub script from the Microsoft TechCommunity guide.
+   * Demo running the script:
+
+     * Installing dependencies.
+     * Authenticating with Managed Identity or Service Principal.
+     * Providing region, SKU, and subscription ID.
+
+5. **Interpreting Results (6:00–7:00)**
+
+   * What the output means: available vs. unavailable SKUs.
+   * Warnings or errors like authorization failures.
+
+6. **Common Issues and How to Fix Them (7:00–9:00)**
+
+   * Authorization errors: Assign RBAC role (Reader or Contributor).
+   * Capacity errors: Use alternate SKUs, regions, or availability zones.
+   * Delayed provisioning: Use proactive monitoring and alerts.
+
+7. **Best Practices (9:00–10:00)**
+
+   * Use `DefaultAzureCredential` securely.
+   * Schedule monitoring daily/weekly.
+   * Integrate with Azure Monitor, Grafana, or custom dashboards.
+   * Document your region-specific SKU support.
+
+8. **Conclusion and Resources (10:00–10:30)**
+
+   * Recap key takeaways.
+   * Share GitHub link and Microsoft documentation.
+   * Invite to like, comment, and subscribe.
+
+---
+
+### 🎙️ **Script Snippet (for part of the video)**
+
+> **\[INTRO]**
+> "Hey everyone! Welcome to the channel. Today, we're diving into a crucial topic for anyone managing Azure infrastructure — how to monitor VM SKU capacity and avoid issues when scaling or provisioning VMs in Azure. Let's get started!"
+
+> **\[WHAT ARE VM SKUs]**
+> "In Azure, every virtual machine has a specific SKU, like Standard\_D16ds\_v5. But not all SKUs are available in every region or zone — and if you don’t check ahead of time, you might hit errors when trying to deploy."
+
+> **\[WHY SKU UPLIFT FAILS]**
+> "If you're trying to scale up or move workloads to a larger instance size, you might find that SKU is not available due to regional capacity limits. These are called SKU uplift issues."
+
+> **\[USING THE SCRIPT]**
+> "Let me show you how you can use a Python script shared by Microsoft to monitor SKU capacity. First, clone the GitHub repo, then install requirements and run the script like this:
+> `python3 monitor_vm_sku_capacity.py --region westus2 --sku Standard_D16ds_v5 --subscription-id <your-sub-id>`"
+
+> **\[TROUBLESHOOTING]**
+> "If you see errors like 'AuthorizationFailed', make sure your identity has the Reader role on the subscription. If it's a capacity issue, consider selecting a different SKU or region."
+
+---
+
+### 📦 **Assets You Might Need**
+
+* GitHub link to script: [https://github.com/Azure/startups/blob/main/vm-sku-capacity/monitor\_vm\_sku\_capacity.py](https://github.com/Azure/startups/blob/main/vm-sku-capacity/monitor_vm_sku_capacity.py)
+* Microsoft Docs: [Azure VM sizes and regions](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes)
+* Azure CLI snippet for assigning roles
+* Sample output screenshots
+
+---
+
+Would you like me to write the full video script or create the thumbnail text/title/captions too?
